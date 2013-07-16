@@ -23,8 +23,13 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
-{capture name=path}{l s='Login'}{/capture}
-{include file="$tpl_dir./breadcrumb.tpl"}
+{capture name=path}
+	{if !isset($email_create)}{l s='Authentication'}{else}
+		<a href="{$link->getPageLink('authentication', true)|escape:'html'}" rel="nofollow" title="{l s='Authentication'}">{l s='Authentication'}</a>
+		<span class="navigation-pipe">{$navigationPipe}</span>{l s='Create your account'}
+	{/if}
+{/capture}
+	{include file="$tpl_dir./breadcrumb.tpl"}
 
 <script type="text/javascript">
 // <![CDATA[
@@ -69,7 +74,7 @@ $(document).ready(function() {
 {/literal}
 </script>
 
-<h1>{if !isset($email_create)}{l s='Log in'}{else}{l s='Create an account'}{/if}</h1>
+<h1>{if !isset($email_create)}{l s='Authentication'}{else}{l s='Create an account'}{/if}</h1>
 {if !isset($back) || $back != 'my-account'}{assign var='current_step' value='login'}{include file="$tpl_dir./order-steps.tpl"}{/if} 
 {include file="$tpl_dir./errors.tpl"}
 {assign var='stateExist' value=false}
@@ -150,7 +155,7 @@ $(document).ready(function() {
 		</ol>
 	</div>
 	{/if}-->
-	<form action="{$link->getPageLink('authentication', true)}" method="post" id="create-account_form" class="std">
+	<form action="{$link->getPageLink('authentication', true)|escape:'html'}" method="post" id="create-account_form" class="std">
 		<fieldset>
 			<h3>{l s='Create an account'}</h3>
 			<div class="form_content clearfix">
@@ -169,7 +174,7 @@ $(document).ready(function() {
 		</fieldset>
 	</form>
 
-	<form action="{$link->getPageLink('authentication', true)}" method="post" id="login_form" class="std">
+	<form action="{$link->getPageLink('authentication', true)|escape:'html'}" method="post" id="login_form" class="std">
 		<fieldset>
 			<h3>{l s='Already registered?'}</h3>
 			<div class="form_content clearfix">
@@ -181,17 +186,17 @@ $(document).ready(function() {
 					<label for="passwd">{l s='Password'}</label>
 					<span><input type="password" id="passwd" name="passwd" value="{if isset($smarty.post.passwd)}{$smarty.post.passwd|stripslashes}{/if}" class="account_input" /></span>
 				</p>
-				<p class="lost_password"><a href="{$link->getPageLink('password')}">{l s='Forgot your password?'}</a></p>
+				<p class="lost_password"><a href="{$link->getPageLink('password')|escape:'html'}" title="{l s='Recover your forgotten password'}" rel="nofollow">{l s='Forgot your password?'}</a></p>
 				<p class="submit">
 					{if isset($back)}<input type="hidden" class="hidden" name="back" value="{$back|escape:'htmlall':'UTF-8'}" />{/if}
-					<input type="submit" id="SubmitLogin" name="SubmitLogin" class="button" value="{l s='Log in'}" />
+					<input type="submit" id="SubmitLogin" name="SubmitLogin" class="button" value="{l s='Authentication'}" />
 				</p>
 			</div>
 		</fieldset>
 	</form>
 
 	{if isset($inOrderProcess) && $inOrderProcess && $PS_GUEST_CHECKOUT_ENABLED}
-	<form action="{$link->getPageLink('authentication', true, NULL, "back=$back")}" method="post" id="new_account_form" class="std clearfix">
+	<form action="{$link->getPageLink('authentication', true, NULL, "back=$back")|escape:'html'}" method="post" id="new_account_form" class="std clearfix">
 		<fieldset>
 			<h3>{l s='Instant checkout'}</h3>
 			<div id="opc_account_form" style="display: block; ">
@@ -365,7 +370,7 @@ $(document).ready(function() {
 		</ol>
 	</div>
 	{/if}-->
-<form action="{$link->getPageLink('authentication', true)}" method="post" id="account-creation_form" class="std">
+<form action="{$link->getPageLink('authentication', true)|escape:'html'}" method="post" id="account-creation_form" class="std">
 	{$HOOK_CREATE_ACCOUNT_TOP}
 	<fieldset class="account_creation">
 		<h3>{l s='Your personal information'}</h3>
@@ -465,10 +470,12 @@ $(document).ready(function() {
 		<h3>{l s='Your address'}</h3>
 		{foreach from=$dlv_all_fields item=field_name}
 			{if $field_name eq "company"}
-				<p class="text">
-					<label for="company">{l s='Company'}</label>
-					<input type="text" class="text" id="company" name="company" value="{if isset($smarty.post.company)}{$smarty.post.company}{/if}" />
-				</p>
+				{if !$b2b_enable}
+					<p class="text">
+						<label for="company">{l s='Company'}</label>
+						<input type="text" class="text" id="company" name="company" value="{if isset($smarty.post.company)}{$smarty.post.company}{/if}" />
+					</p>
+				{/if}
 			{elseif $field_name eq "vat_number"}
 				<div id="vat_number" style="display:none;">
 					<p class="text">

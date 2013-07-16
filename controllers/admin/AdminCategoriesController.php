@@ -146,7 +146,7 @@ class AdminCategoriesControllerCore extends AdminController
 		if (Shop::isFeatureActive() && Shop::getContext() != Shop::CONTEXT_SHOP)
 			unset($this->fields_list['position']);
 		// shop restriction : if category is not available for current shop, we redirect to the list from default category
-		if (!$this->_category->isAssociatedToShop() && Shop::getContext() == Shop::CONTEXT_SHOP)
+		if (Validate::isLoadedObject($this->_category) && !$this->_category->isAssociatedToShop() && Shop::getContext() == Shop::CONTEXT_SHOP)
 		{
 			$this->redirect_after = self::$currentIndex.'&id_category='.(int)$this->context->shop->getCategory().'&token='.$this->token;
 			$this->redirect();
@@ -187,8 +187,9 @@ class AdminCategoriesControllerCore extends AdminController
 			&& (Shop::getContext() == Shop::CONTEXT_SHOP && !Shop::isFeatureActive() && $count_categories_without_parent > 1))
 			$categories_tree = array(array('name' => $this->_category->name[$this->context->language->id]));
 
-		asort($categories_tree);
+		$categories_tree = array_reverse($categories_tree);
 		$this->tpl_list_vars['categories_tree'] = $categories_tree;
+		$this->tpl_list_vars['categories_tree_current_id'] = $this->_category->id;
 
 		if (Tools::isSubmit('submitBulkdelete'.$this->table) || Tools::isSubmit('delete'.$this->table))
 		{
@@ -207,8 +208,7 @@ class AdminCategoriesControllerCore extends AdminController
 
 	public function getList($id_lang, $order_by = null, $order_way = null, $start = 0, $limit = null, $id_lang_shop = false)
 	{
-		$alias = 'sa';
-		parent::getList($id_lang, $alias.'.position', $order_way, $start, $limit, Context::getContext()->shop->id);
+		parent::getList($id_lang, $order_by, $order_way, $start, $limit, Context::getContext()->shop->id);
 		// Check each row to see if there are combinations and get the correct action in consequence
 
 		$nb_items = count($this->_list);
@@ -414,6 +414,7 @@ class AdminCategoriesControllerCore extends AdminController
 					'type' => 'textarea',
 					'label' => $this->l('Description:'),
 					'name' => 'description',
+					'autoload_rte' => true,
 					'lang' => true,
 					'rows' => 10,
 					'cols' => 100,
